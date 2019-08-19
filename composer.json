@@ -1,6 +1,6 @@
 {
     "name": "troshyn/kak-clickhouse-fork",
-    "description": "ClickHouse for Yii2",
+    "description": "ClickHouse for Yii2. fork",
     "type": "yii2-extension",
     "keywords": ["yii2","ClickHouse","ClickHouse ActiveRecord Yii2"],
     "license": "MIT",
