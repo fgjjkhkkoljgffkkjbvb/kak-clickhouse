@@ -31,13 +31,14 @@ class ActiveRecord extends \yii\db\ActiveRecord
                 system.columns
             WHERE
                 `table` = :name
-                AND `database`=:database
+                AND `database` = :database
+                AND `is_in_primary_key` = 1
             FORMAT JSON
         ';
         $result = static::getDb()->createCommand($sql, [
             ':name' => static::tableName(),
             ':database' => static::getDb()->database ?? 'default'
-        ])->queryAll();
+        ])->queryColumn();
 
         return $result;
     }
