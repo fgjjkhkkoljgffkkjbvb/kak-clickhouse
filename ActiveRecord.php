@@ -4,24 +4,13 @@ use Yii;
 
 class ActiveRecord extends \yii\db\ActiveRecord
 {
-
-
-    /**
-     * Returns the connection used by this AR class.
-     * @return mixed|Connection the database connection used by this AR class.
-     */
-    public static function getDb()
-    {
-        return Yii::$app->get('clickhouse');
-    }
-
     /**
      * @inheritdoc
      * @return \kak\clickhouse\ActiveQuery the newly created [[\kak\clickhouse\ActiveQuery]] instance.
      */
     public static function find()
     {
-        return Yii::createObject(ActiveQuery::className(), [get_called_class()]);
+        return Yii::createObject(ActiveQuery::class, [get_called_class()]);
     }
 
     /**
@@ -35,8 +24,22 @@ class ActiveRecord extends \yii\db\ActiveRecord
      */
     public static function primaryKey()
     {
-        // TODO: Implement primaryKey() method.
-        return null;
+        $sql = '
+            SELECT
+                name
+            FROM
+                system.columns
+            WHERE
+                `table` = :name
+                AND `database`=:database
+            FORMAT JSON
+        ';
+        $result = self::getDb()->createCommand($sql, [
+            ':name' => self::tableName(),
+            ':database' => self::getDb()->database ?? 'default'
+        ])->queryAll();
+
+        return $result;
     }
 
 
