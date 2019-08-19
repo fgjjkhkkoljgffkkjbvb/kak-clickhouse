@@ -59,9 +59,11 @@ class Connection extends \yii\db\Connection
 
     private $_schema;
     /**
-     * @var array 
+     * @var array
      */
     private $_options = [];
+
+    private $sessionId;
 
     /**
      * @return array
@@ -99,7 +101,7 @@ class Connection extends \yii\db\Connection
             'sql' => $sql,
         ]);
         $command->addOptions($this->getOptions());
-        
+
         return $command->bindValues($params);
     }
 
@@ -124,6 +126,7 @@ class Connection extends \yii\db\Connection
             return;
         }
 
+        $this->sessionId = md5(uniqid('clickhouse', true));
         $url = $this->buildDsnUrl();
 
         $this->_transport = new Client([
@@ -155,6 +158,11 @@ class Connection extends \yii\db\Connection
         if (!empty($this->database)) {
             $params['database'] = $this->database;
         }
+
+        if (!empty($this->sessionId)) {
+            $params['session_id'] = $this->sessionId;
+        }
+
         $url = $this->buildUrl($url, $params);
         return $url;
     }
@@ -173,7 +181,7 @@ class Connection extends \yii\db\Connection
 
         $auth = (!empty($parsed['user']) ? $parsed['user'] : '') . (!empty($parsed['pass']) ? ':' . $parsed['pass'] : '');
         $defaultScheme = 'http';
-        
+
         return (isset($parsed['scheme']) ? $parsed['scheme'] : $defaultScheme)
             . '://'
             . (!empty($auth) ? $auth . '@' : '')
@@ -182,7 +190,7 @@ class Connection extends \yii\db\Connection
             . $parsed['path']
             . $parsed['query'];
     }
-    
+
 
     /**
      * Quotes a string value for use in a query.
@@ -235,6 +243,7 @@ class Connection extends \yii\db\Connection
     {
         if ($this->getIsActive()) {
             $connection = ($this->dsn . ':' . $this->port);
+            $this->sessionId = null;
             \Yii::trace('Closing DB connection: ' . $connection, __METHOD__);
         }
     }
