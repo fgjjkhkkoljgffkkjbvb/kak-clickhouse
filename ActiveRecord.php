@@ -34,9 +34,9 @@ class ActiveRecord extends \yii\db\ActiveRecord
                 AND `database`=:database
             FORMAT JSON
         ';
-        $result = self::getDb()->createCommand($sql, [
-            ':name' => self::tableName(),
-            ':database' => self::getDb()->database ?? 'default'
+        $result = static::getDb()->createCommand($sql, [
+            ':name' => static::tableName(),
+            ':database' => static::getDb()->database ?? 'default'
         ])->queryAll();
 
         return $result;
