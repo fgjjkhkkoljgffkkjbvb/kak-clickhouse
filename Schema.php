@@ -26,15 +26,19 @@ class Schema extends \yii\db\Schema
         'String' => self::TYPE_STRING,
         'FixedString' => self::TYPE_CHAR,
         'Date' => self::TYPE_DATE,
+//        'Date32' => self::TYPE_DATE,
         'DateTime' => self::TYPE_DATETIME,
         'Enum' => self::TYPE_STRING,
         'Enum8' => self::TYPE_STRING,
         'Enum16' => self::TYPE_STRING,
+        'IPv4' => self::TYPE_STRING,
+        'IPv6' => self::TYPE_STRING,
+        'UUID' => self::TYPE_STRING,
 
         'Nullable(UInt8)' => self::TYPE_SMALLINT,
-        'Nullable(UInt16' => self::TYPE_INTEGER,
-        'Nullable(UInt32' => self::TYPE_INTEGER,
-        'Nullable(UInt64' => self::TYPE_BIGINT,
+        'Nullable(UInt16)' => self::TYPE_INTEGER,
+        'Nullable(UInt32)' => self::TYPE_INTEGER,
+        'Nullable(UInt64)' => self::TYPE_BIGINT,
         'Nullable(Int8)' => self::TYPE_SMALLINT,
         'Nullable(Int16)' => self::TYPE_INTEGER,
         'Nullable(Int32)' => self::TYPE_INTEGER,
@@ -98,7 +102,7 @@ class Schema extends \yii\db\Schema
 
     public function createQueryBuilder()
     {
-        return new \kak\clickhouse\QueryBuilder($this->db);
+        return new QueryBuilder($this->db);
     }
 
     /**
@@ -142,7 +146,7 @@ class Schema extends \yii\db\Schema
         if (!is_string($str)) {
             return $str;
         }
-        return "'" . addcslashes(str_replace("'", "''", $str), "\000\n\r\\\032\047") . "'";
+        return "'" . addcslashes($str, "\000\n\r\\\032\047") . "'";
     }
 
     /**
@@ -161,10 +165,18 @@ class Schema extends \yii\db\Schema
      */
     protected function loadTableSchema($name)
     {
+        $database = $this->db->database === null ? 'default' : $this->db->database;
+
+        if (stripos($name, '.') !== false) {
+            $schemaData = explode('.', $name);
+            $database = $schemaData[0];
+            $name = $schemaData[1];
+        }
+
         $sql = 'SELECT * FROM system.columns WHERE `table`=:name and `database`=:database FORMAT JSON';
         $result = $this->db->createCommand($sql, [
             ':name' => $name,
-            ':database' => $this->db->database === null ? 'default' : $this->db->database
+            ':database' => $database,
         ])->queryAll();
 
         if ($result && isset($result[0])) {

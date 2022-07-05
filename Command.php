@@ -327,7 +327,6 @@ class Command extends BaseCommand
                 return array_map(function ($a) {
                     return array_values($a)[0];
                 }, $result);
-                break;
             case self::FETCH_SCALAR:
                 if (array_key_exists(0, $result)) {
                     return current($result[0]);
@@ -335,7 +334,6 @@ class Command extends BaseCommand
                 break;
             case self::FETCH:
                 return is_array($result) ? array_shift($result) : $result;
-                break;
         }
 
         if ($fetchMode == self::FETCH_MODE_ALL) {
@@ -653,8 +651,12 @@ class Command extends BaseCommand
         return $this->setSql($sql);
     }
 
+    /**
+     * @return void
+     * @throws DbException
+     */
     public function query()
     {
-        throw new \yii\db\Exception('Clichouse unsupport cursor');
+        throw new \yii\db\Exception('Clickhouse unsupported cursor');
     }
 }
