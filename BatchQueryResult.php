@@ -85,7 +85,7 @@ class BatchQueryResult  extends BaseObject implements \Iterator
      * Resets the iterator to the initial state.
      * This method is required by the interface [[\Iterator]].
      */
-    public function rewind()
+    public function rewind(): void
     {
         $this->reset();
         $this->next();
@@ -95,7 +95,7 @@ class BatchQueryResult  extends BaseObject implements \Iterator
      * Moves the internal pointer to the next dataset.
      * This method is required by the interface [[\Iterator]].
      */
-    public function next()
+    public function next(): void
     {
         if ($this->batch === null || !$this->each || $this->each && next($this->batch) === false) {
             $this->batch = $this->fetchData();
@@ -121,7 +121,7 @@ class BatchQueryResult  extends BaseObject implements \Iterator
      * Fetches the next batch of data.
      * @return array the data fetched
      */
-    protected function fetchData()
+    protected function fetchData(): array
     {
         $command = $this->query->createCommand($this->db);
 
@@ -140,7 +140,7 @@ class BatchQueryResult  extends BaseObject implements \Iterator
      * This method is required by the interface [[\Iterator]].
      * @return int the index of the current row.
      */
-    public function key()
+    public function key(): mixed
     {
         return $this->key;
     }
@@ -150,7 +150,7 @@ class BatchQueryResult  extends BaseObject implements \Iterator
      * This method is required by the interface [[\Iterator]].
      * @return mixed the current dataset.
      */
-    public function current()
+    public function current(): mixed
     {
         return $this->value;
     }
@@ -160,7 +160,7 @@ class BatchQueryResult  extends BaseObject implements \Iterator
      * This method is required by the interface [[\Iterator]].
      * @return bool whether there is a valid dataset at the current position.
      */
-    public function valid()
+    public function valid(): bool
     {
         return !empty($this->batch);
     }
